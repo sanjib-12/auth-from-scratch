@@ -6,10 +6,15 @@
     "build": "tsc",
     "dev": "tsc -w",
     "start": "node dist/server.js",
+    "dev:server": "nodemon dist/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "devDependencies": {
+    "@types/node": "^25.2.3",
+    "nodemon": "^3.1.11"
+  }
 }
