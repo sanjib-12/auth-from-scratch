@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "dev": "tsc -w",
+    "dev": "rmdir /s /q dist & tsc -w",
     "start": "node dist/server.js",
     "dev:server": "nodemon dist/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"

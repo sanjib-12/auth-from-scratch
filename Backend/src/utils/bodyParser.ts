@@ -1,10 +1,19 @@
-import { IncomingMessage } from "node:http";
+import { IncomingMessage } from "http";
 
-const bodyParser = (req: IncomingMessage): Promise<any> => {
+const MAX_BODY_SIZE = 1024 * 1024;
+
+const bodyParser = (req: IncomingMessage): Promise<unknown> => {
    return new Promise((resolve, reject) => {
       let body = "";
+      let size = 0;
 
       req.on("data", (chunk) => {
+         size += chunk.length;
+         if (size > MAX_BODY_SIZE) {
+            req.destroy();
+            reject(new Error("payload too large"));
+            return;
+         }
          body += chunk.toString();
       });
 

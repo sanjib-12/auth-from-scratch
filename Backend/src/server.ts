@@ -1,30 +1,50 @@
-import http from "http";
+import http, { IncomingMessage, ServerResponse } from "http";
 import handleAuthRouter from "./routers/auth";
 
-const server = http.createServer((req, res) => {
-   
-   if(!req.url) return;
+const PORT = 5000;
 
-   res.setHeader("Access-Control-Allow-Origin","*");
-   res.setHeader("Access-COntrol-Allow-Methods","POST, OPTIONS");
-   res.setHeader("Access-Control-Allow-Headers","Content-Type");
+const server = http.createServer((req: IncomingMessage, res: ServerResponse) => {
+   if (!req.url) {
+      res.writeHead(400);
+      res.end("Missing request URL");
+      return;
+   }
 
-   if(req.method === "OPTIONS"){
-      res.writeHead(200);
+   res.setHeader("Access-Control-Allow-Origin", "*");
+   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+   if (req.method === "OPTIONS") {
+      res.writeHead(204);
       res.end();
       return;
    }
 
-   if(req.url === "/signup" || req.url === "/login"){
-      handleAuthRouter(req, res);
-   }else{
+   const url = new URL(req.url, `http://${req.headers.host ?? "localhost"}`);
+   const pathname = url.pathname;
+
+   if (pathname === "/signup" || pathname === "/login") {
+      if (req.method !== "POST") {
+         res.setHeader("Allow", "POST, OPTIONS");
+         res.writeHead(405);
+         res.end("Method Not Allowed");
+         return;
+      }
+      handleAuthRouter(req, res, pathname);
+   } else {
       res.writeHead(404);
       res.end("Not Found");
    }
+});
 
-})
+server.on("error", (err: NodeJS.ErrnoException) => {
+   if (err.code === "EADDRINUSE") {
+      console.error(`port ${PORT} is already in use`);
+      process.exit(1);
+   }
+   throw err;
+});
 
-server.listen(5000,()=>{
-   console.log("server running at http://localhost:5000")
-})
-
+server.listen(PORT, () => {
+   console.log(`server running at http://localhost:${PORT}`);
+});
