@@ -1,5 +1,5 @@
 import { readUser, writeUser } from "../utils/readWrite";
-import { hashedPassword, compareHashedPassword } from "./password-service";
+import { hashedPassword, compareHashedPassword, validatePassword } from "./password-service";
 
 interface ServiceResult {
    statusCode: number;
@@ -8,18 +8,28 @@ interface ServiceResult {
 
 async function signUpUser(email: string, password: string): Promise<ServiceResult> {
    try {
+      const normalizedEmail = email.trim().toLowerCase();
+
+      const passwordError = validatePassword(password);
+      if (passwordError) {
+         return {
+            statusCode: 400,
+            statusMsg: passwordError,
+         };
+      }
+
       const users = await readUser();
 
-      if (users.find((user) => user.email === email)) {
+      if (users.find((user) => user.email === normalizedEmail)) {
          return {
             statusCode: 409,
-            statusMsg: "user already exists",
+            statusMsg: "User already exists",
          };
       }
 
       users.push({
          id: Date.now().toString(),
-         email: email,
+         email: normalizedEmail,
          password: await hashedPassword(password),
       });
 
@@ -29,7 +39,6 @@ async function signUpUser(email: string, password: string): Promise<ServiceResul
          statusCode: 201,
          statusMsg: "Signup Successful",
       };
-
    } catch (error) {
       console.error(error);
       return {
@@ -41,8 +50,10 @@ async function signUpUser(email: string, password: string): Promise<ServiceResul
 
 async function loginUser(email: string, password: string): Promise<ServiceResult> {
    try {
+      const normalizedEmail = email.trim().toLowerCase();
+
       const users = await readUser();
-      const user = users.find((user) => user.email === email);
+      const user = users.find((user) => user.email === normalizedEmail);
 
       if (!user) {
          return {
@@ -56,7 +67,7 @@ async function loginUser(email: string, password: string): Promise<ServiceResult
       if (!valid) {
          return {
             statusCode: 401,
-            statusMsg: "invalid Credentials!",
+            statusMsg: "Invalid credentials!",
          };
       }
 

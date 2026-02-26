@@ -7,9 +7,9 @@ import { isAuthPayload } from "../types/user";
 async function handleAuthRouter(req: IncomingMessage, res: ServerResponse, pathname: string) {
    try {
       const contentType = req.headers["content-type"];
-      if(!contentType || !contentType.toLocaleLowerCase().startsWith("application/jason")){
+      if(!contentType || !contentType.toLocaleLowerCase().startsWith("application/json")){
          res.writeHead(415);
-         res.end("Content-Type must be application/jason");
+         res.end("Content-Type must be application/json");
          return;
       }
 
