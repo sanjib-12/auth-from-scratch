@@ -4,8 +4,12 @@ import { User } from "../types/user";
 const dbPath = path.resolve(__dirname, "../../db/users.json");
 
 async function readUser(): Promise<User[]> {
-   const raw = await fs.readFile(dbPath, "utf8");
-   return JSON.parse(raw) as User[];
+   try {
+      const raw = await fs.readFile(dbPath, "utf8");
+      return JSON.parse(raw) as User[];
+   } catch {
+      return [];
+   }
 }
 
 async function writeUser(users: User[]): Promise<void> {
@@ -13,4 +17,3 @@ async function writeUser(users: User[]): Promise<void> {
 }
 
 export { readUser, writeUser };
-

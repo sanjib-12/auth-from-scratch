@@ -1,9 +1,12 @@
+import crypto from "crypto";
 import { readUser, writeUser } from "../utils/readWrite";
-import { hashedPassword, compareHashedPassword, validatePassword } from "./password-service";
+import { hashPassword, verifyPassword, validatePassword } from "./password-service";
+import { createSession } from "../sessions/session-store";
 
 interface ServiceResult {
    statusCode: number;
    statusMsg: string;
+   sessionId?: string;
 }
 
 async function signUpUser(email: string, password: string): Promise<ServiceResult> {
@@ -30,7 +33,7 @@ async function signUpUser(email: string, password: string): Promise<ServiceResul
       users.push({
          id: Date.now().toString(),
          email: normalizedEmail,
-         password: await hashedPassword(password),
+         password: await hashPassword(password),
       });
 
       await writeUser(users);
@@ -62,7 +65,7 @@ async function loginUser(email: string, password: string): Promise<ServiceResult
          };
       }
 
-      const valid = await compareHashedPassword(password, user.password);
+      const valid = await verifyPassword(password, user.password);
 
       if (!valid) {
          return {
@@ -71,9 +74,13 @@ async function loginUser(email: string, password: string): Promise<ServiceResult
          };
       }
 
+      const sessionId = crypto.randomUUID();
+      createSession(sessionId, normalizedEmail);
+
       return {
          statusCode: 200,
          statusMsg: "Login Successful",
+         sessionId,
       };
    } catch (error) {
       console.error(error);
