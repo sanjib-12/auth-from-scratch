@@ -1,0 +1,130 @@
+/* ── Reset ────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+   box-sizing: border-box;
+   margin: 0;
+   padding: 0;
+}
+
+body {
+   font-family: system-ui, -apple-system, sans-serif;
+   background: #e4c798;
+   color: #524444;
+   min-height: 100vh;
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   justify-content: center;
+   padding: 2rem;
+}
+
+/* ── Typography ──────────────────────────────────────────────────── */
+h2 {
+   font-size: 1.5rem;
+   margin-bottom: 1rem;
+}
+
+/* ── Card (dashboard) ────────────────────────────────────────────── */
+.card {
+   background: #ffffff;
+   border: 1px solid #d4c9b8;
+   border-radius: 12px;
+   padding: 2rem;
+   width: 100%;
+   max-width: 380px;
+   display: flex;
+   flex-direction: column;
+   gap: 1rem;
+}
+
+/* ── Form ────────────────────────────────────────────────────────── */
+form {
+   display: flex;
+   flex-direction: column;
+   gap: 0.75rem;
+   width: 100%;
+   max-width: 380px;
+}
+
+input {
+   width: 100%;
+   padding: 0.7rem 0.85rem;
+   font-size: 0.9rem;
+   font-family: inherit;
+   color: #333;
+   background: #ffffff;
+   border: 1px solid #d4c9b8;
+   border-radius: 6px;
+   outline: none;
+}
+
+input:focus {
+   border-color: #8ba4c4;
+}
+
+input::placeholder {
+   color: #999;
+}
+
+/* ── Buttons ─────────────────────────────────────────────────────── */
+button,
+.btn {
+   padding: 0.7rem;
+   font-family: inherit;
+   font-size: 0.9rem;
+   font-weight: 600;
+   color: #fff;
+   background: #5b8db8;
+   border: 1px solid #4a7da8;
+   border-radius: 6px;
+   cursor: pointer;
+}
+
+button:hover,
+.btn:hover {
+   background: #4a7da8;
+}
+
+button:disabled {
+   opacity: 0.4;
+   cursor: not-allowed;
+}
+
+.btn-logout {
+   background: transparent;
+   border-color: #c4a882;
+   color: #6b5b4f;
+}
+
+.btn-logout:hover {
+   background: #f0e6d6;
+}
+
+/* ── Message ─────────────────────────────────────────────────────── */
+#message {
+   font-size: 0.85rem;
+   min-height: 1.25rem;
+}
+
+/* ── Links ───────────────────────────────────────────────────────── */
+a {
+   color: #7a6b5d;
+   font-size: 0.85rem;
+   text-decoration: none;
+}
+
+a:hover {
+   color: #4a7da8;
+}
+
+/* ── Dashboard ───────────────────────────────────────────────────── */
+.email-label {
+   color: #7a6b5d;
+   font-size: 0.9rem;
+}
+
+.email-label span {
+   color: #3a3a3a;
+   font-weight: 600;
+}

@@ -1,13 +1,20 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
+   <meta charset="UTF-8" />
    <title>Dashboard</title>
+   <link rel="stylesheet" href="css/styles.css" />
 </head>
 
 <body>
-   <h1>Welcome to Dashboard</h1>
-   <p>You are logged in (not really yet 😉)</p>
+   <div class="card">
+      <h2>Welcome👋</h2>
+      <p class="email-label">Logged in as <span id="user-email">Loading...</span></p>
+      <div id="message"></div>
+      <button id="logout-btn" class="btn btn-logout">Logout</button>
+   </div>
+   <script type="module" src="../dist/dashboard.js"></script>
 </body>
 
 </html>

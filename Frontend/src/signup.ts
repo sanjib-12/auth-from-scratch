@@ -20,6 +20,9 @@ form.addEventListener("submit", async (event) => {
       messageBox.textContent = response.message;
       if (response.status === 201) {
          messageBox.style.color = "green";
+         setTimeout(() => {
+            window.location.href = "login.html";
+         }, 1000);
       } else {
          messageBox.style.color = "red";
       }

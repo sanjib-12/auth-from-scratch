@@ -16,6 +16,9 @@ form.addEventListener("submit", async (event) => {
       messageBox.textContent = response.message;
       if (response.status === 200) {
          messageBox.style.color = "green";
+         setTimeout(() => {
+            window.location.href = "dashboard.html";
+         }, 800);
       } else {
          messageBox.style.color = "red";
       }

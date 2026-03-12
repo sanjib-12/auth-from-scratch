@@ -1,9 +1,14 @@
-export interface UserCredentials{
+export interface UserCredentials {
    email: string;
    password: string;
 }
 
-export interface ApiResponse{
+export interface ApiResponse {
    status: number;
    message: string;
+}
+
+export interface ProfileData {
+   message: string;
+   email: string;
 }
