@@ -31,7 +31,7 @@ async function signUpUser(email: string, password: string): Promise<ServiceResul
       }
 
       users.push({
-         id: Date.now().toString(),
+         id: crypto.randomUUID(),
          email: normalizedEmail,
          password: await hashPassword(password),
       });
