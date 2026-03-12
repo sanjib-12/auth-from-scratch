@@ -7,7 +7,7 @@ A hands-on project to learn authentication concepts by building them from scratc
 | Phase | Topic                                        | Status      |
 | ----- | -------------------------------------------- | ----------- |
 | 1     | [Password Hashing](docs/01-password-auth.md) | ✅ Done     |
-| 2     | Sessions                                     | ⬜ Upcoming |
+| 2     | [Sessions](docs/02-session.md)               | ✅ Done     |
 | 3     | CSRF Protection                              | ⬜ Upcoming |
 | 4     | JWT                                          | ⬜ Upcoming |
 | 5     | Refresh Tokens                               | ⬜ Upcoming |
@@ -112,3 +112,4 @@ Both expect `Content-Type: application/json` with body:
 Each phase has a detailed doc explaining **what** was built and **why** each decision was made:
 
 - [Phase 1 — Password Authentication](docs/01-password-auth.md)
+- [Phase 2 — Sessions](docs/02-session.md)
