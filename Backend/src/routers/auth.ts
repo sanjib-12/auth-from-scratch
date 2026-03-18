@@ -2,7 +2,7 @@ import { IncomingMessage, ServerResponse } from "http";
 import { signUpUser, loginUser, ServiceResult } from "../services/auth-service";
 import bodyParser from "../utils/bodyParser";
 import { isAuthPayload } from "../types/user";
-import { buildSessionCookie } from "../utils/cookie";
+import { buildCsrfToken, buildSessionCookie } from "../utils/cookie";
 
 async function handleAuthRouter(req: IncomingMessage, res: ServerResponse, pathname: string) {
    try {
@@ -29,9 +29,10 @@ async function handleAuthRouter(req: IncomingMessage, res: ServerResponse, pathn
          result = await signUpUser(body.email, body.password);
       }
 
-      if (result.sessionId) {
+      if (result.sessionId && result.csrfToken) {
          const sessionCookie = buildSessionCookie(result.sessionId);
-         res.setHeader("Set-Cookie", sessionCookie);
+         const csrfToken= buildCsrfToken(result.csrfToken);
+         res.setHeader("Set-Cookie", [sessionCookie, csrfToken]);
       }
 
       res.writeHead(result.statusCode);

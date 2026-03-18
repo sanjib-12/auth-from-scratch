@@ -7,6 +7,7 @@ interface ServiceResult {
    statusCode: number;
    statusMsg: string;
    sessionId?: string;
+   csrfToken?: string;
 }
 
 async function signUpUser(email: string, password: string): Promise<ServiceResult> {
@@ -75,12 +76,14 @@ async function loginUser(email: string, password: string): Promise<ServiceResult
       }
 
       const sessionId = crypto.randomUUID();
-      createSession(sessionId, normalizedEmail);
+      const csrfToken = crypto.randomBytes(32).toString("hex");
+      createSession(sessionId,csrfToken, normalizedEmail);
 
       return {
          statusCode: 200,
          statusMsg: "Login Successful",
          sessionId,
+         csrfToken
       };
    } catch (error) {
       console.error(error);

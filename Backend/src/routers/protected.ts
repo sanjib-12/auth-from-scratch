@@ -1,10 +1,9 @@
 import { IncomingMessage, ServerResponse } from "http";
-import { requireSession } from "../sessions/session-guard";
+import { requireAuth } from "../middleware/session-csrf-verification";
 
 export function handleProtectedRoute(req: IncomingMessage, res: ServerResponse) {
-   const session = requireSession(req, res);
-
-   if (!session) return;
+   const session = requireAuth(req, res);
+   if(session === null) return;
 
    const email = session.email;
 

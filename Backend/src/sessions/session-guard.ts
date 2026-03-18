@@ -2,7 +2,10 @@ import { IncomingMessage, ServerResponse } from "http";
 import { parseCookies } from "../utils/cookieParser";
 import { getSession } from "./session-store";
 
+
 export function requireSession(req: IncomingMessage, res: ServerResponse): { sessionId: string; email: string } | null {
+ 
+
    const cookies = parseCookies(req.headers.cookie);
    const sessionId = cookies.sessionId;
 
