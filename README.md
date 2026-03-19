@@ -8,7 +8,7 @@ A hands-on project to learn authentication concepts by building them from scratc
 | ----- | -------------------------------------------- | ----------- |
 | 1     | [Password Hashing](docs/01-password-auth.md) | ✅ Done     |
 | 2     | [Sessions](docs/02-session.md)               | ✅ Done     |
-| 3     | CSRF Protection                              | ⬜ Upcoming |
+| 3     | [CSRF Protection](docs/03-csrf-protection.md) | ✅ Done     |
 | 4     | JWT                                          | ⬜ Upcoming |
 | 5     | Refresh Tokens                               | ⬜ Upcoming |
 | 6     | MFA                                          | ⬜ Upcoming |
@@ -32,26 +32,36 @@ auth/
 │   │   ├── signup.html
 │   │   └── dashboard.html
 │   ├── src/
-│   │   ├── api.ts            # Fetch wrapper
+│   │   ├── api.ts            # Fetch wrapper + CSRF token handling
 │   │   ├── login.ts          # Login form handler
 │   │   ├── signup.ts         # Signup form handler
+│   │   ├── dashboard.ts      # Dashboard: profile loading + logout
 │   │   └── types/user.ts     # Frontend interfaces
 │   └── package.json
 │
 ├── Backend/
 │   ├── src/
-│   │   ├── server.ts                  # HTTP server + CORS + routing
-│   │   ├── routers/auth.ts            # Input validation + routing
-│   │   ├── services/auth-service.ts   # Signup/login logic
-│   │   ├── services/password-service.ts # Hashing + validation
-│   │   ├── utils/bodyParser.ts        # JSON body parser (with size limit)
-│   │   ├── utils/readWrite.ts         # File-based user storage
-│   │   └── types/user.ts             # Backend interfaces + type guards
+│   │   ├── server.ts                          # HTTP server + CORS + routing
+│   │   ├── routers/auth-route.ts              # Signup/login/logout routing
+│   │   ├── routers/profile-route.ts           # Protected profile endpoint
+│   │   ├── services/auth-service.ts           # Signup/login logic + CSRF token generation
+│   │   ├── services/password-service.ts       # Hashing + validation
+│   │   ├── sessions/session-store.ts          # In-memory session + CSRF token store
+│   │   ├── sessions/session-guard.ts          # Auth guard (session + CSRF validation)
+│   │   ├── middleware/body-parser.ts          # JSON body parser (with size limit)
+│   │   ├── middleware/cookie-parser.ts        # HTTP cookie parser
+│   │   ├── middleware/require-json.ts         # Content-Type enforcement
+│   │   ├── utils/cookie.ts                    # Cookie builder/clearer (session + CSRF)
+│   │   ├── utils/csrf-token-verification.ts   # Timing-safe CSRF token comparison
+│   │   ├── utils/read-write.ts                # File-based user storage
+│   │   └── types/auth-types.ts                # Backend interfaces + type guards
 │   ├── db/users.json
 │   └── package.json
 │
 └── docs/
-    └── 01-password-auth.md   # Phase 1 documentation
+    ├── 01-password-auth.md    # Phase 1 — Password Authentication
+    ├── 02-session.md          # Phase 2 — Sessions
+    └── 03-csrf-protection.md  # Phase 3 — CSRF Protection
 ```
 
 ## Getting Started
@@ -96,12 +106,14 @@ Then open `Frontend/public/login.html` or `signup.html` in a browser.
 
 ### Endpoints
 
-| Method | Path      | Description                        |
-| ------ | --------- | ---------------------------------- |
-| `POST` | `/signup` | Create a new account               |
-| `POST` | `/login`  | Authenticate with email + password |
+| Method | Path       | Description                        | Auth Required |
+| ------ | ---------- | ---------------------------------- | ------------- |
+| `POST` | `/signup`  | Create a new account               | No            |
+| `POST` | `/login`   | Authenticate with email + password | No            |
+| `GET`  | `/profile` | Get authenticated user profile     | Session + CSRF |
+| `POST` | `/logout`  | End session and clear cookies      | Session + CSRF |
 
-Both expect `Content-Type: application/json` with body:
+`/signup` and `/login` expect `Content-Type: application/json` with body:
 
 ```json
 { "email": "user@example.com", "password": "your-password" }
@@ -113,3 +125,4 @@ Each phase has a detailed doc explaining **what** was built and **why** each dec
 
 - [Phase 1 — Password Authentication](docs/01-password-auth.md)
 - [Phase 2 — Sessions](docs/02-session.md)
+- [Phase 3 — CSRF Protection](docs/03-csrf-protection.md)

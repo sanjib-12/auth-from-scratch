@@ -3,6 +3,7 @@ dist
 .env
 .DS_Store
 .vscode
+.cursor
 
 agent.md 
 config.toml
