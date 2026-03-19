@@ -29,9 +29,15 @@ export async function postRequest(endpoint: string, data: UserCredentials): Prom
 
 export async function postRequestNoBody(endpoint: string): Promise<ApiResponse> {
    try {
+      const csrfToken = getCsrfToken();
+      const headers: Record<string, string> = {};
+      if(csrfToken){
+         headers["X-CSRF-Token"]= csrfToken;
+      }
       const response = await fetch(`${BASE_URL}${endpoint}`, {
          method: "POST",
          credentials: "include",
+         headers
       });
 
       const message = await response.text();
@@ -51,9 +57,15 @@ export async function postRequestNoBody(endpoint: string): Promise<ApiResponse> 
 export async function getRequest<T>(endpoint: string): Promise<ApiResponse & { data?: T }> {
    let response;
    try {
+      const csrfToken = getCsrfToken();
+      const headers: Record<string, string> = {};
+      if(csrfToken){
+         headers["X-CSRF-Token"]= csrfToken;
+      }
       response = await fetch(`${BASE_URL}${endpoint}`, {
          method: "GET",
          credentials: "include",
+         headers,
       });
    } catch (error) {
       console.log("getRequest failed: ", error);
@@ -81,4 +93,11 @@ export async function getRequest<T>(endpoint: string): Promise<ApiResponse & { d
       message: data ? "Ok" : "data unknown",
       data,
    };
+}
+
+function getCsrfToken(): string | undefined {
+   const match = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("csrfToken="));
+   return match?.split("=")[1];
 }
