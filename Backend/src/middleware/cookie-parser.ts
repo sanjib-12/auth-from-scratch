@@ -1,4 +1,4 @@
-export function parseCookies(cookieHeader?: string) {
+export function parseCookies(cookieHeader?: string): Record<string, string> {
    const cookies: Record<string, string> = {};
 
    if (!cookieHeader) return cookies;
@@ -10,5 +10,6 @@ export function parseCookies(cookieHeader?: string) {
       const value = cookie.slice(eqIndex + 1).trim();
       cookies[key] = value;
    });
+   console.log(cookies);
    return cookies;
 }

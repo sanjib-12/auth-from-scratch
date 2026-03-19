@@ -1,9 +1,9 @@
 import fs from "fs/promises";
 import path from "path";
-import { User } from "../types/user";
+import { User } from "../types/auth-types";
 const dbPath = path.resolve(__dirname, "../../db/users.json");
 
-async function readUser(): Promise<User[]> {
+export async function readUsers(): Promise<User[]> {
    try {
       const raw = await fs.readFile(dbPath, "utf8");
       return JSON.parse(raw) as User[];
@@ -12,8 +12,7 @@ async function readUser(): Promise<User[]> {
    }
 }
 
-async function writeUser(users: User[]): Promise<void> {
+export async function writeUsers(users: User[]): Promise<void> {
    await fs.writeFile(dbPath, JSON.stringify(users, null, 2));
 }
 
-export { readUser, writeUser };

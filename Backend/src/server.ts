@@ -1,7 +1,6 @@
 import http, { IncomingMessage, ServerResponse } from "http";
-import handleAuthRouter from "./routers/auth";
-import { handleProtectedRoute } from "./routers/protected";
-import { handleLogout } from "./routers/logout";
+import { handleSignup, handleLogin, handleLogout } from "./routers/auth-route";
+import { handleProfile } from "./routers/profile-route";
 
 const PORT = 5000;
 
@@ -14,7 +13,7 @@ const server = http.createServer((req: IncomingMessage, res: ServerResponse) => 
 
    res.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:5500");
    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS, GET");
-   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+   res.setHeader("Access-Control-Allow-Headers", "Content-Type, X-CSRF-Token");
    res.setHeader("Access-Control-Allow-Credentials", "true");
 
    if (req.method === "OPTIONS") {
@@ -26,14 +25,22 @@ const server = http.createServer((req: IncomingMessage, res: ServerResponse) => 
    const url = new URL(req.url, `http://${req.headers.host ?? "localhost"}`);
    const pathname = url.pathname;
 
-   if (pathname === "/signup" || pathname === "/login") {
+   if (pathname === "/signup") {
       if (req.method !== "POST") {
          res.setHeader("Allow", "POST, OPTIONS");
          res.writeHead(405);
          res.end("Method Not Allowed");
          return;
       }
-      handleAuthRouter(req, res, pathname);
+      handleSignup(req, res);
+   } else if (pathname === "/login") {
+      if (req.method !== "POST") {
+         res.setHeader("Allow", "POST, OPTIONS");
+         res.writeHead(405);
+         res.end("Method Not Allowed");
+         return;
+      }
+      handleLogin(req, res);
    } else if (pathname === "/profile") {
       if (req.method !== "GET") {
          res.setHeader("Allow", "GET, OPTIONS");
@@ -41,7 +48,7 @@ const server = http.createServer((req: IncomingMessage, res: ServerResponse) => 
          res.end("Method Not Allowed");
          return;
       }
-      handleProtectedRoute(req, res);
+      handleProfile(req, res);
    } else if (pathname === "/logout") {
       if (req.method !== "POST") {
          res.setHeader("Allow", "POST, OPTIONS");

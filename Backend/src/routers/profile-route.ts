@@ -1,7 +1,7 @@
 import { IncomingMessage, ServerResponse } from "http";
-import { requireAuth } from "../middleware/session-csrf-verification";
+import { requireAuth } from "../sessions/session-guard"
 
-export function handleProtectedRoute(req: IncomingMessage, res: ServerResponse) {
+export function handleProfile(req: IncomingMessage, res: ServerResponse) {
    const session = requireAuth(req, res);
    if(session === null) return;
 

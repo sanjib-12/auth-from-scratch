@@ -1,4 +1,3 @@
-import crypto from "crypto";
 interface Session {
   email: string;
   csrfToken: string;

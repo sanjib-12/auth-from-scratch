@@ -9,6 +9,18 @@ export interface AuthPayload {
    password: string;
 }
 
+export interface ServiceResult {
+   statusCode: number;
+   statusMsg: string;
+   sessionId?: string;
+   csrfToken?: string;
+}
+
+export interface SessionInfo {
+   sessionId: string;
+   email: string;
+}
+
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function isValidEmail(email: string): boolean {

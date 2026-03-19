@@ -1,16 +1,10 @@
 import crypto from "crypto";
-import { readUser, writeUser } from "../utils/readWrite";
+import { readUsers, writeUsers } from "../utils/read-write";
 import { hashPassword, verifyPassword, validatePassword } from "./password-service";
 import { createSession } from "../sessions/session-store";
+import { ServiceResult } from "../types/auth-types";
 
-interface ServiceResult {
-   statusCode: number;
-   statusMsg: string;
-   sessionId?: string;
-   csrfToken?: string;
-}
-
-async function signUpUser(email: string, password: string): Promise<ServiceResult> {
+export async function signUpUser(email: string, password: string): Promise<ServiceResult> {
    try {
       const normalizedEmail = email.trim().toLowerCase();
 
@@ -22,9 +16,9 @@ async function signUpUser(email: string, password: string): Promise<ServiceResul
          };
       }
 
-      const users = await readUser();
+      const users = await readUsers();
 
-      if (users.find((user) => user.email === normalizedEmail)) {
+      if (users.find((u) => u.email === normalizedEmail)) {
          return {
             statusCode: 409,
             statusMsg: "User already exists",
@@ -37,7 +31,7 @@ async function signUpUser(email: string, password: string): Promise<ServiceResul
          password: await hashPassword(password),
       });
 
-      await writeUser(users);
+      await writeUsers(users);
 
       return {
          statusCode: 201,
@@ -52,12 +46,12 @@ async function signUpUser(email: string, password: string): Promise<ServiceResul
    }
 }
 
-async function loginUser(email: string, password: string): Promise<ServiceResult> {
+export async function loginUser(email: string, password: string): Promise<ServiceResult> {
    try {
       const normalizedEmail = email.trim().toLowerCase();
 
-      const users = await readUser();
-      const user = users.find((user) => user.email === normalizedEmail);
+      const users = await readUsers();
+      const user = users.find((u) => u.email === normalizedEmail);
 
       if (!user) {
          return {
@@ -77,13 +71,13 @@ async function loginUser(email: string, password: string): Promise<ServiceResult
 
       const sessionId = crypto.randomUUID();
       const csrfToken = crypto.randomBytes(32).toString("hex");
-      createSession(sessionId,csrfToken, normalizedEmail);
+      createSession(sessionId, csrfToken, normalizedEmail);
 
       return {
          statusCode: 200,
          statusMsg: "Login Successful",
          sessionId,
-         csrfToken
+         csrfToken,
       };
    } catch (error) {
       console.error(error);
@@ -93,6 +87,3 @@ async function loginUser(email: string, password: string): Promise<ServiceResult
       };
    }
 }
-
-export { signUpUser, loginUser };
-export { ServiceResult };
