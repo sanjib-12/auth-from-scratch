@@ -12,12 +12,11 @@ export interface AuthPayload {
 export interface ServiceResult {
    statusCode: number;
    statusMsg: string;
-   sessionId?: string;
+   token?: string;
    csrfToken?: string;
 }
 
 export interface SessionInfo {
-   sessionId: string;
    email: string;
 }
 

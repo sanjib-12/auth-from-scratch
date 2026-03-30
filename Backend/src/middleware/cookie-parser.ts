@@ -10,6 +10,5 @@ export function parseCookies(cookieHeader?: string): Record<string, string> {
       const value = cookie.slice(eqIndex + 1).trim();
       cookies[key] = value;
    });
-   console.log(cookies);
    return cookies;
 }

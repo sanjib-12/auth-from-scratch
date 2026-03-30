@@ -1,13 +1,12 @@
-const SESSION_COOKIE_OPTIONS = "HttpOnly; Path=/; SameSite=Strict" as const;
-
+const JWT_COOKIE_OPTIONS = "HttpOnly; Path=/; SameSite=Strict" as const;
 const CSRF_COOKIE_OPTIONS = "Path=/; SameSite=Strict" as const;
 
-export function buildSessionCookie(sessionId: string): string {
-   return `sessionId=${sessionId}; ${SESSION_COOKIE_OPTIONS}`;
+export function buildJwtCookie(jwt: string): string {
+   return `jwt=${jwt}; ${JWT_COOKIE_OPTIONS}`;
 }
 
-export function clearSessionCookie(): string {
-   return `sessionId=; ${SESSION_COOKIE_OPTIONS}; Max-Age=0`;
+export function clearJwtCookie(): string {
+   return `jwt=; ${JWT_COOKIE_OPTIONS}; Max-Age=0`;
 }
 
 export function buildCsrfCookie(csrfToken: string): string{

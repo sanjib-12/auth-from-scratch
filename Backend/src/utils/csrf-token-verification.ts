@@ -1,12 +1,8 @@
 import crypto  from "crypto";
-import { getCsrfToken } from "../sessions/session-store";
 
-export function compareCsrfToken(sessionId: string, tokenFromHeader: string): boolean{
-    const storedCsrfToken = getCsrfToken(sessionId);
+export function compareCsrfToken(tokenFromPayload: string, tokenFromHeader: string): boolean{
 
-    if(!storedCsrfToken) return false;
-
-    const a = Buffer.from(storedCsrfToken, "hex");
+    const a = Buffer.from(tokenFromPayload, "hex");
     const b = Buffer.from(tokenFromHeader, "hex");
 
     if(a.length !== b.length) return false;

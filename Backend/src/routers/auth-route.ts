@@ -3,9 +3,8 @@ import { signUpUser, loginUser} from "../services/auth-service";
 import { requireJson } from "../middleware/require-json";
 import { bodyParser } from "../middleware/body-parser";
 import { isAuthPayload } from "../types/auth-types";
-import { buildSessionCookie, buildCsrfCookie, clearSessionCookie, clearCsrfCookie } from "../utils/cookie";
-import { deleteSession } from "../sessions/session-store"
-import { requireAuth } from "../sessions/session-guard";
+import { buildJwtCookie, buildCsrfCookie, clearJwtCookie, clearCsrfCookie } from "../utils/cookie";
+import { requireAuth } from "../jwt/session-guard";
 
 export async function handleSignup(req: IncomingMessage, res: ServerResponse) {
    try {
@@ -42,10 +41,10 @@ export async function handleLogin(req: IncomingMessage, res: ServerResponse) {
 
       const result = await loginUser(body.email, body.password);
 
-      if (result.sessionId && result.csrfToken) {
-         const sessionCookie = buildSessionCookie(result.sessionId);
+      if (result.token && result.csrfToken) {
+         const jwtCookie = buildJwtCookie(result.token);
          const csrfCookie = buildCsrfCookie(result.csrfToken);
-         res.setHeader("Set-Cookie", [sessionCookie, csrfCookie]);
+         res.setHeader("Set-Cookie", [jwtCookie, csrfCookie]);
       }
 
       res.writeHead(result.statusCode);
@@ -56,12 +55,10 @@ export async function handleLogin(req: IncomingMessage, res: ServerResponse) {
 }
 
 export function handleLogout(req: IncomingMessage, res: ServerResponse) {
-   const session = requireAuth(req, res);
-   if (session === null) return;
+   const auth = requireAuth(req, res);
+   if (auth === null) return;
 
-   deleteSession(session.sessionId);
-
-   res.setHeader("Set-Cookie", [clearSessionCookie(), clearCsrfCookie()]);
+   res.setHeader("Set-Cookie", [clearJwtCookie(), clearCsrfCookie()]);
    res.writeHead(204);
    res.end();
 }

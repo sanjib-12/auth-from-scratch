@@ -1,8 +1,8 @@
 import crypto from "crypto";
 import { readUsers, writeUsers } from "../utils/read-write";
 import { hashPassword, verifyPassword, validatePassword } from "./password-service";
-import { createSession } from "../sessions/session-store";
 import { ServiceResult } from "../types/auth-types";
+import { createToken } from "../jwt/jwt-service";
 
 export async function signUpUser(email: string, password: string): Promise<ServiceResult> {
    try {
@@ -69,14 +69,13 @@ export async function loginUser(email: string, password: string): Promise<Servic
          };
       }
 
-      const sessionId = crypto.randomUUID();
       const csrfToken = crypto.randomBytes(32).toString("hex");
-      createSession(sessionId, csrfToken, normalizedEmail);
+      const jwt = createToken(normalizedEmail, csrfToken);
 
       return {
          statusCode: 200,
          statusMsg: "Login Successful",
-         sessionId,
+         token: jwt,
          csrfToken,
       };
    } catch (error) {
