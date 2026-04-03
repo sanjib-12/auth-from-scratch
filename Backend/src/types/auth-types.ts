@@ -14,6 +14,7 @@ export interface ServiceResult {
    statusMsg: string;
    token?: string;
    csrfToken?: string;
+   refreshToken?: string;
 }
 
 export interface SessionInfo {

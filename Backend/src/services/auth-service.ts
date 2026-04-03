@@ -3,6 +3,7 @@ import { readUsers, writeUsers } from "../utils/read-write";
 import { hashPassword, verifyPassword, validatePassword } from "./password-service";
 import { ServiceResult } from "../types/auth-types";
 import { createToken } from "../jwt/jwt-service";
+import { createRefreshToken } from "./refresh-token-service";
 
 export async function signUpUser(email: string, password: string): Promise<ServiceResult> {
    try {
@@ -71,12 +72,14 @@ export async function loginUser(email: string, password: string): Promise<Servic
 
       const csrfToken = crypto.randomBytes(32).toString("hex");
       const jwt = createToken(normalizedEmail, csrfToken);
+      const refreshToken = await createRefreshToken(normalizedEmail);
 
       return {
          statusCode: 200,
          statusMsg: "Login Successful",
          token: jwt,
          csrfToken,
+         refreshToken,
       };
    } catch (error) {
       console.error(error);

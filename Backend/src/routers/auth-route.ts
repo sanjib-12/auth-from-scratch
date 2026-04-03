@@ -1,10 +1,12 @@
 import { IncomingMessage, ServerResponse } from "http";
-import { signUpUser, loginUser} from "../services/auth-service";
+import { signUpUser, loginUser } from "../services/auth-service";
 import { requireJson } from "../middleware/require-json";
 import { bodyParser } from "../middleware/body-parser";
 import { isAuthPayload } from "../types/auth-types";
-import { buildJwtCookie, buildCsrfCookie, clearJwtCookie, clearCsrfCookie } from "../utils/cookie";
+import { buildJwtCookie, buildCsrfCookie, clearJwtCookie, clearCsrfCookie, buildRefreshCookie, clearRefreshCookie } from "../utils/cookie";
 import { requireAuth } from "../jwt/session-guard";
+import { parseCookies } from "../middleware/cookie-parser";
+import { revokeRefreshTokenFamily } from "../services/refresh-token-service";
 
 export async function handleSignup(req: IncomingMessage, res: ServerResponse) {
    try {
@@ -41,10 +43,11 @@ export async function handleLogin(req: IncomingMessage, res: ServerResponse) {
 
       const result = await loginUser(body.email, body.password);
 
-      if (result.token && result.csrfToken) {
+      if (result.token && result.csrfToken && result.refreshToken) {
          const jwtCookie = buildJwtCookie(result.token);
          const csrfCookie = buildCsrfCookie(result.csrfToken);
-         res.setHeader("Set-Cookie", [jwtCookie, csrfCookie]);
+         const refreshCookie = buildRefreshCookie(result.refreshToken);
+         res.setHeader("Set-Cookie", [jwtCookie, csrfCookie, refreshCookie]);
       }
 
       res.writeHead(result.statusCode);
@@ -54,16 +57,26 @@ export async function handleLogin(req: IncomingMessage, res: ServerResponse) {
    }
 }
 
-export function handleLogout(req: IncomingMessage, res: ServerResponse) {
-   const auth = requireAuth(req, res);
-   if (auth === null) return;
+export async function handleLogout(req: IncomingMessage, res: ServerResponse) {
+   try {
+      const auth = requireAuth(req, res);
+      if (auth === null) return;
 
-   res.setHeader("Set-Cookie", [clearJwtCookie(), clearCsrfCookie()]);
-   res.writeHead(204);
-   res.end();
+      const cookies = parseCookies(req.headers.cookie);
+      const refreshToken = cookies.refresh;
+      if (refreshToken) {
+         await revokeRefreshTokenFamily(refreshToken);
+      }
+
+      res.setHeader("Set-Cookie", [clearJwtCookie(), clearCsrfCookie(), clearRefreshCookie()]);
+      res.writeHead(204);
+      res.end();
+   } catch (error) {
+      handleRouterError(error,res);
+   }
 }
 
-function handleRouterError(error: unknown, res: ServerResponse) {
+export function handleRouterError(error: unknown, res: ServerResponse) {
    console.error(error);
 
    const isTooLarge = error instanceof Error && error.message.toLowerCase().includes("payload too large");

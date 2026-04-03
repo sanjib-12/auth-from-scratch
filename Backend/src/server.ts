@@ -1,6 +1,7 @@
 import http, { IncomingMessage, ServerResponse } from "http";
 import { handleSignup, handleLogin, handleLogout } from "./routers/auth-route";
 import { handleProfile } from "./routers/profile-route";
+import { handleRefresh } from "./routers/refresh-route";
 
 const PORT = 5000;
 
@@ -57,6 +58,14 @@ const server = http.createServer((req: IncomingMessage, res: ServerResponse) => 
          return;
       }
       handleLogout(req, res);
+   } else if (pathname === "/refresh") {
+      if (req.method !== "POST") {
+         res.setHeader("Allow", "POST, OPTIONS");
+         res.writeHead(405);
+         res.end("Method Not Allowed");
+         return;
+      }
+      handleRefresh(req, res);
    } else {
       res.writeHead(404);
       res.end("Not Found");
