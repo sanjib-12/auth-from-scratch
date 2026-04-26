@@ -2,10 +2,18 @@ import crypto from "crypto";
 
 const SECRET_KEY = crypto.randomBytes(64).toString("hex");
 const TokenDurationSeconds = 300;
+const MFA_PENDING_DURARTION_SECONDS = 300;
 
 interface JwtPayload {
    sub: string;
    csrf: string;
+   iat: number;
+   exp: number;
+}
+
+interface MfaPendingPayload {
+   sub: string;
+   purpose: "mfa_pending";
    iat: number;
    exp: number;
 }
@@ -73,6 +81,57 @@ function isJwtPayload(obj: unknown): obj is JwtPayload {
       obj !== null &&
       typeof (obj as any).sub === "string" &&
       typeof (obj as any).csrf === "string" &&
+      typeof (obj as any).iat === "number" &&
+      typeof (obj as any).exp === "number"
+   );
+}
+
+export function createMfaPendingToken(email: string): string {
+   const header = { alg: "HS256", typ: "JWT" };
+   const now = Math.floor(Date.now() / 1000);
+   const payload: MfaPendingPayload = {
+      sub: email,
+      purpose: "mfa_pending",
+      iat: now,
+      exp: now + MFA_PENDING_DURARTION_SECONDS,
+   };
+
+   const headerB64 = base64url(JSON.stringify(header));
+   const payloadB64 = base64url(JSON.stringify(payload));
+   const signature = createSignature(headerB64, payloadB64);
+
+   return `${headerB64}.${payloadB64}.${signature}`;
+}
+
+export function verifyMfaPendingToken(token: string): string | null {
+   const parts = token.split(".");
+   if (parts.length !== 3) return null;
+
+   const [headerB64, payloadB64, signatureB64] = parts;
+   const expectedSignature = createSignature(headerB64, payloadB64);
+
+   const sigBuffer = Buffer.from(signatureB64, "base64url");
+   const expectedBuffer = Buffer.from(expectedSignature, "base64url");
+
+   if (sigBuffer.length !== expectedBuffer.length) return null;
+   if (!crypto.timingSafeEqual(sigBuffer, expectedBuffer)) return null;
+
+   try {
+      const parsed = JSON.parse(Buffer.from(payloadB64, "base64url").toString());
+      if (!isMfaPendingPayload(parsed)) return null;
+      if (parsed.exp <= Math.floor(Date.now() / 1000)) return null;
+      return parsed.sub;
+   } catch (error) {
+      return null;
+   }
+}
+
+function isMfaPendingPayload(obj: unknown): obj is MfaPendingPayload {
+   return (
+      typeof obj === "object" &&
+      obj !== null &&
+      typeof (obj as any).sub === "string" &&
+      (obj as any).purpose === "mfa_pending" &&
       typeof (obj as any).iat === "number" &&
       typeof (obj as any).exp === "number"
    );

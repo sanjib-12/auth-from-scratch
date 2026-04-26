@@ -2,6 +2,7 @@ import http, { IncomingMessage, ServerResponse } from "http";
 import { handleSignup, handleLogin, handleLogout } from "./routers/auth-route";
 import { handleProfile } from "./routers/profile-route";
 import { handleRefresh } from "./routers/refresh-route";
+import { handleMfaSetup, handleMfaVerifySetup, handleMfaVerify, handleMfaDisable } from "./routers/mfa-route";
 
 const PORT = 5000;
 
@@ -25,6 +26,8 @@ const server = http.createServer((req: IncomingMessage, res: ServerResponse) => 
 
    const url = new URL(req.url, `http://${req.headers.host ?? "localhost"}`);
    const pathname = url.pathname;
+
+   console.log(pathname);
 
    if (pathname === "/signup") {
       if (req.method !== "POST") {
@@ -66,6 +69,38 @@ const server = http.createServer((req: IncomingMessage, res: ServerResponse) => 
          return;
       }
       handleRefresh(req, res);
+   } else if (pathname === "/mfa/setup") {
+      if (req.method !== "POST") {
+         res.setHeader("Allow", "POST, OPTIONS");
+         res.writeHead(405);
+         res.end("Method Not Allowed");
+         return;
+      }
+      handleMfaSetup(req, res);
+   } else if (pathname === "/mfa/verify-setup") {
+      if (req.method !== "POST") {
+         res.setHeader("Allow", "POST, OPTIONS");
+         res.writeHead(405);
+         res.end("Method Not Allowed");
+         return;
+      }
+      handleMfaVerifySetup(req, res);
+   } else if (pathname === "/mfa/verify") {
+      if (req.method !== "POST") {
+         res.setHeader("Allow", "POST, OPTIONS");
+         res.writeHead(405);
+         res.end("Method Not Allowed");
+         return;
+      }
+      handleMfaVerify(req, res);
+   } else if (pathname === "/mfa/disable") {
+      if (req.method !== "POST") {
+         res.setHeader("Allow", "POST, OPTIONS");
+         res.writeHead(405);
+         res.end("Method Not Allowed");
+         return;
+      }
+      handleMfaDisable(req, res);
    } else {
       res.writeHead(404);
       res.end("Not Found");

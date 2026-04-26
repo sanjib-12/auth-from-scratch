@@ -3,7 +3,15 @@ import { signUpUser, loginUser } from "../services/auth-service";
 import { requireJson } from "../middleware/require-json";
 import { bodyParser } from "../middleware/body-parser";
 import { isAuthPayload } from "../types/auth-types";
-import { buildJwtCookie, buildCsrfCookie, clearJwtCookie, clearCsrfCookie, buildRefreshCookie, clearRefreshCookie } from "../utils/cookie";
+import {
+   buildJwtCookie,
+   buildCsrfCookie,
+   clearJwtCookie,
+   clearCsrfCookie,
+   buildRefreshCookie,
+   clearRefreshCookie,
+   buildMfaPendingCookie,
+} from "../utils/cookie";
 import { requireAuth } from "../jwt/session-guard";
 import { parseCookies } from "../middleware/cookie-parser";
 import { revokeRefreshTokenFamily } from "../services/refresh-token-service";
@@ -43,7 +51,9 @@ export async function handleLogin(req: IncomingMessage, res: ServerResponse) {
 
       const result = await loginUser(body.email, body.password);
 
-      if (result.token && result.csrfToken && result.refreshToken) {
+      if (result.mfaPendingToken) {
+         res.setHeader("Set-Cookie", [buildMfaPendingCookie(result.mfaPendingToken)]);
+      } else if (result.token && result.csrfToken && result.refreshToken) {
          const jwtCookie = buildJwtCookie(result.token);
          const csrfCookie = buildCsrfCookie(result.csrfToken);
          const refreshCookie = buildRefreshCookie(result.refreshToken);
@@ -72,7 +82,7 @@ export async function handleLogout(req: IncomingMessage, res: ServerResponse) {
       res.writeHead(204);
       res.end();
    } catch (error) {
-      handleRouterError(error,res);
+      handleRouterError(error, res);
    }
 }
 

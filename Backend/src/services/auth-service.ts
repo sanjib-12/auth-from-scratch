@@ -2,7 +2,7 @@ import crypto from "crypto";
 import { readUsers, writeUsers } from "../utils/read-write";
 import { hashPassword, verifyPassword, validatePassword } from "./password-service";
 import { ServiceResult } from "../types/auth-types";
-import { createToken } from "../jwt/jwt-service";
+import { createMfaPendingToken, createToken } from "../jwt/jwt-service";
 import { createRefreshToken } from "./refresh-token-service";
 
 export async function signUpUser(email: string, password: string): Promise<ServiceResult> {
@@ -68,6 +68,15 @@ export async function loginUser(email: string, password: string): Promise<Servic
             statusCode: 401,
             statusMsg: "Invalid credentials!",
          };
+      }
+
+      if(user.mfaEnabled){
+         const mfaPendingToken = createMfaPendingToken(normalizedEmail);
+         return{
+            statusCode: 202,
+            statusMsg: "MFA required",
+            mfaPendingToken,
+         }
       }
 
       const csrfToken = crypto.randomBytes(32).toString("hex");

@@ -2,11 +2,18 @@ export interface User {
    id: string;
    email: string;
    password: string;
+   mfaEnabled?: boolean;
+   totpSecret?: string;
+   recoveryCodes?: string[];
 }
 
 export interface AuthPayload {
    email: string;
    password: string;
+}
+
+export interface MfaCodePayload {
+   code: string;
 }
 
 export interface ServiceResult {
@@ -15,6 +22,7 @@ export interface ServiceResult {
    token?: string;
    csrfToken?: string;
    refreshToken?: string;
+   mfaPendingToken?: string;
 }
 
 export interface SessionInfo {
@@ -41,4 +49,10 @@ export function isAuthPayload(value: unknown): value is AuthPayload {
       body.password.length > 0 &&
       isValidEmail(body.email.trim())
    );
+}
+
+export function isMfaCodePayload(value: unknown): value is MfaCodePayload {
+   if (typeof value !== "object" || value === null) return false;
+   const body = value as Record<string, unknown>;
+   return typeof body.code === "string" && body.code.trim().length > 0;
 }
