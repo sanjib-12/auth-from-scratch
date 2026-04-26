@@ -1,4 +1,4 @@
-import { UserCredentials, ApiResponse, ProfileData } from "./types/user";
+import { UserCredentials, ApiResponse } from "./types/user";
 
 const BASE_URL = "http://127.0.0.1:5000";
 
@@ -45,7 +45,7 @@ export async function postRequest(endpoint: string, data: UserCredentials): Prom
       console.log("postRequest failed: ", error);
       return {
          status: 0,
-         message: "unable to reach server. Please try again.",
+         message: "Unable to reach server. Please try again.",
       };
    }
 }
@@ -81,8 +81,70 @@ export async function postRequestNoBody(endpoint: string): Promise<ApiResponse> 
       console.log("postRequest failed: ", error);
       return {
          status: 0,
-         message: "unable to reach server. Please try again.",
+         message: "Unable to reach server. Please try again.",
       };
+   }
+}
+
+export async function postAuthJson<T>(endpoint: string, data?: object): Promise<ApiResponse & { data?: T }> {
+   const doFetch = () => {
+      const csrfToken = getCsrfToken();
+      const headers: Record<string, string> = {};
+      if (csrfToken) {
+         headers["X-CSRF-Token"] = csrfToken;
+      }
+      if (data) {
+         headers["Content-Type"] = "application/json";
+      }
+      return fetch(`${BASE_URL}${endpoint}`, {
+         method: "POST",
+         credentials: "include",
+         headers,
+         body: data ? JSON.stringify(data) : undefined,
+      });
+   };
+
+   try {
+      let response = await doFetch();
+      if (response.status === 401) {
+         const refreshed = await refreshOnce();
+         if (refreshed) {
+            response = await doFetch();
+         }
+      }
+
+      const text = await response.text();
+      if (!response.ok) {
+         return { status: response.status, message: text };
+      }
+
+      let parsed: T | undefined;
+      try {
+         parsed = JSON.parse(text) as T;
+      } catch {
+         parsed = undefined;
+      }
+
+      return { status: response.status, message: "Ok", data: parsed };
+   } catch (error) {
+      console.log("postAuthJson failed:", error);
+      return { status: 0, message: "Unable to reach server. Please try again." };
+   }
+}
+
+export async function postMfaVerify(code: string): Promise<ApiResponse> {
+   try {
+      const response = await fetch(`${BASE_URL}/mfa/verify`, {
+         method: "POST",
+         headers: DEFAULT_HEADERS,
+         credentials: "include",
+         body: JSON.stringify({ code }),
+      });
+      const message = await response.text();
+      return { status: response.status, message };
+   } catch (error) {
+      console.log("postMfaVerify failed:", error);
+      return { status: 0, message: "Unable to reach server. Please try again" };
    }
 }
 
@@ -113,7 +175,7 @@ export async function getRequest<T>(endpoint: string): Promise<ApiResponse & { d
       console.log("getRequest failed: ", error);
       return {
          status: 0,
-         message: "unable to reach server. Please try again.",
+         message: "Unable to reach server. Please try again.",
       };
    }
 
@@ -139,5 +201,5 @@ export async function getRequest<T>(endpoint: string): Promise<ApiResponse & { d
 
 function getCsrfToken(): string | undefined {
    const match = document.cookie.split("; ").find((row) => row.startsWith("csrfToken="));
-   return match?.split("=")[1];
+   return match?.split("=").slice(1).join("=");
 }

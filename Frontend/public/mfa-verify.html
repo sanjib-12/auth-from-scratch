@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+   <meta charset="UTF-8" />
+   <title>MFA Verification</title>
+   <link rel="stylesheet" href="css/styles.css" />
+</head>
+
+<body>
+   <div class="card">
+      <h2>Two-Factor Authentication</h2>
+      <p class="mfa-instructions">Enter the 6-digit code from your authenticator app, or a recovery code.</p>
+
+      <form id="mfa-form">
+         <input type="text" id="mfa-code" placeholder="6-digit code or recovery code" maxlength="12"
+            autocomplete="one-time-code" inputmode="numeric" required />
+         <button id="btn-mfa-verify" type="submit">Verify</button>
+      </form>
+
+      <div id="message"></div>
+      <div>
+         <a href="login.html">Back to login</a>
+      </div>
+   </div>
+   <script type="module" src="../dist/mfa-verify.js"></script>
+</body>
+
+</html>

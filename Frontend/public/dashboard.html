@@ -11,7 +11,14 @@
    <div class="card">
       <h2>Welcome👋</h2>
       <p class="email-label">Logged in as <span id="user-email">Loading...</span></p>
+
+      <div id="mfa-section" class="mfa-section" style="display: none;">
+         <p class="mfa-label">Two-Factor Auth: <span id="mfa-status"></span></p>
+         <button id="mfa-enable-btn" class="btn">Enable MFA</button>
+      </div>
+      
       <div id="message"></div>
+      
       <button id="logout-btn" class="btn btn-logout">Logout</button>
    </div>
    <script type="module" src="../dist/dashboard.js"></script>

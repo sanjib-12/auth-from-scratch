@@ -11,4 +11,14 @@ export interface ApiResponse {
 export interface ProfileData {
    message: string;
    email: string;
+   mfaEnabled: boolean;
+}
+
+export interface MfaSetupData {
+   secret: string;
+   otpauthUri: string;
+}
+
+export interface MfaSetupResult {
+   recoveryCodes: string[];
 }

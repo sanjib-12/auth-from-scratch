@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+   <meta charset="UTF-8" />
+   <title>Enable MFA</title>
+   <link rel="stylesheet" href="css/styles.css" />
+</head>
+
+<body>
+   <div class="card mfa-card">
+      <h2>Set Up Two-Factor Authentication</h2>
+
+      <div id="step-qr">
+         <p class="mfa-instructions">Scan this QR code with your authenticator app (Google Authenticator, Authy, etc.):</p>
+         <div id="qr-container" class="qr-container"></div>
+         <p class="mfa-instructions">Or enter this key manually:</p>
+         <code id="manual-key" class="manual-key"></code>
+
+         <form id="verify-form">
+            <input type="text" id="totp-code" placeholder="6-digit code" maxlength="6" pattern="\d{6}" required
+               autocomplete="one-time-code" inputmode="numeric" />
+            <button id="btn-mfa-setup-submit" type="submit">Verify &amp; Enable</button>
+         </form>
+         <div id="message"></div>
+      </div>
+
+      <div id="step-recovery" style="display: none;">
+         <h3>Recovery Codes</h3>
+         <p class="mfa-instructions">Save these codes somewhere safe. Each can be used once if you lose access to your
+            authenticator app.</p>
+         <ul id="recovery-list" class="recovery-list"></ul>
+         <button id="done-btn" class="btn">Back to Dashboard</button>
+      </div>
+   </div>
+   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+   <script type="module" src="../dist/mfa-setup.js"></script>
+</body>
+
+</html>
