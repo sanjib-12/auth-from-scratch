@@ -15,13 +15,16 @@ form.addEventListener("submit", async (event) => {
 
       const response = await postRequest(endpoint, { email, password });
 
-      messageBox.textContent = response.message;
       if (response.status === 200) {
          messageBox.style.color = "green";
+         const msg = JSON.parse(response.message);
+         messageBox.textContent = msg.message;
          setTimeout(() => {
             window.location.href = "dashboard.html";
          }, 800);
       } else if (response.status === 202) {
+         const body = JSON.parse(response.message);
+         sessionStorage.setItem("mfaType", body.mfaType);
          messageBox.style.color = "green";
          messageBox.textContent = "MFA required, redirecting...";
          setTimeout(() => {

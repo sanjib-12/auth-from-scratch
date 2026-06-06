@@ -35,6 +35,7 @@ export async function postRequest(endpoint: string, data: UserCredentials): Prom
          credentials: "include",
          body: JSON.stringify(data),
       });
+      console.log(response)
 
       const message = await response.text();
       return {
@@ -106,6 +107,7 @@ export async function postAuthJson<T>(endpoint: string, data?: object): Promise<
 
    try {
       let response = await doFetch();
+      console.log(response)
       if (response.status === 401) {
          const refreshed = await refreshOnce();
          if (refreshed) {
@@ -125,7 +127,7 @@ export async function postAuthJson<T>(endpoint: string, data?: object): Promise<
          parsed = undefined;
       }
 
-      return { status: response.status, message: "Ok", data: parsed };
+      return { status: response.status, message: text, data: parsed };
    } catch (error) {
       console.log("postAuthJson failed:", error);
       return { status: 0, message: "Unable to reach server. Please try again." };
@@ -133,8 +135,10 @@ export async function postAuthJson<T>(endpoint: string, data?: object): Promise<
 }
 
 export async function postMfaVerify(code: string): Promise<ApiResponse> {
+   const mfaType = sessionStorage.getItem("mfaType");
+   const endpoint = mfaType === "email-otp" ? "/mfa/email/verify" : "/mfa/verify";
    try {
-      const response = await fetch(`${BASE_URL}/mfa/verify`, {
+      const response = await fetch(`${BASE_URL}${endpoint}`, {
          method: "POST",
          headers: DEFAULT_HEADERS,
          credentials: "include",
@@ -203,3 +207,4 @@ function getCsrfToken(): string | undefined {
    const match = document.cookie.split("; ").find((row) => row.startsWith("csrfToken="));
    return match?.split("=").slice(1).join("=");
 }
+

@@ -10,12 +10,13 @@
 <body>
    <div class="card">
       <h2>Two-Factor Authentication</h2>
-      <p class="mfa-instructions">Enter the 6-digit code from your authenticator app, or a recovery code.</p>
+      <p id="mfa-instructions">Enter the 6-digit code from your authenticator app, or a recovery code.</p>
 
       <form id="mfa-form">
          <input type="text" id="mfa-code" placeholder="6-digit code or recovery code" maxlength="12"
             autocomplete="one-time-code" inputmode="numeric" required />
          <button id="btn-mfa-verify" type="submit">Verify</button>
+         <button id="btn-mfa-resend" style="display: none;">Resend Code</button>
       </form>
 
       <div id="message"></div>

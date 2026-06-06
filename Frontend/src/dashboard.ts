@@ -6,13 +6,18 @@ const messageBox = document.getElementById("message") as HTMLDivElement;
 const logoutBtn = document.getElementById("logout-btn") as HTMLButtonElement;
 const mfaSection = document.getElementById("mfa-section") as HTMLDivElement;
 const mfaStatus = document.getElementById("mfa-status") as HTMLSpanElement;
+const mfaTypeStatus = document.getElementById("mfa-type-status") as HTMLSpanElement;
+const mfaTypelabel = document.getElementById("mfa-type-label") as HTMLParagraphElement;
 const mfaToggleBtn = document.getElementById("mfa-enable-btn") as HTMLButtonElement;
 
 let mfaCurrentlyEnabled = false;
+let mfaEnableType: string;
 
 function setEnabledUi(): void {
    mfaCurrentlyEnabled = true;
    mfaStatus.textContent = "Enabled";
+   mfaTypelabel.style.display = 'block';
+   mfaTypeStatus.textContent = mfaEnableType;
    mfaStatus.classList.add("mfa-on");
    mfaStatus.classList.remove("mfa-off");
    mfaToggleBtn.classList.add("mfa-btn-disable");
@@ -23,6 +28,7 @@ function setEnabledUi(): void {
 
 function setDisabledUi(): void {
    mfaCurrentlyEnabled = false;
+   mfaTypelabel.style.display = 'none';
    mfaStatus.textContent = "Disabled";
    mfaStatus.classList.add("mfa-off");
    mfaStatus.classList.remove("mfa-on");
@@ -34,7 +40,7 @@ function setDisabledUi(): void {
 
 mfaToggleBtn.addEventListener("click", async () => {
    if (!mfaCurrentlyEnabled) {
-      window.location.href = "mfa-setup.html";
+      window.location.href = "mfa-options.html";
       return;
    }
 
@@ -42,7 +48,9 @@ mfaToggleBtn.addEventListener("click", async () => {
    messageBox.style.color = "";
    messageBox.textContent = "Disabling MFA...";
 
-   const response = await postRequestNoBody("/mfa/disable");
+   const endpoint:string = mfaEnableType === "totp"? "/mfa/disable" : "/mfa/email/disable";
+
+   const response = await postRequestNoBody(endpoint);
    if (response.status === 204) {
       setDisabledUi();
       showMessage("MFA disabled");
@@ -66,6 +74,7 @@ function showMessage(text: string, color: string = ""): void {
 async function loadProfile(): Promise<void> {
    try {
       const response = await getRequest<ProfileData>("/profile");
+      console.log(response)
 
       if (response.status === 401) {
          window.location.href = "login.html";
@@ -86,8 +95,13 @@ async function loadProfile(): Promise<void> {
       }
 
       emailDisplay.textContent = profile.email;
+      console.log(profile.mfaEnabled)
+      console.log(profile.emailOtpEnable)
+     
 
-      if (profile.mfaEnabled) {
+      if (profile.mfaEnabled || profile.emailOtpEnable) {
+         mfaEnableType = profile.mfaEnabled ? "totp" : "email-otp";
+         console.log(mfaEnableType)
          setEnabledUi();
       } else {
          setDisabledUi();

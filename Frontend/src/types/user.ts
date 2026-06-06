@@ -11,7 +11,8 @@ export interface ApiResponse {
 export interface ProfileData {
    message: string;
    email: string;
-   mfaEnabled: boolean;
+   mfaEnabled?: boolean;
+   emailOtpEnable?: boolean;
 }
 
 export interface MfaSetupData {
