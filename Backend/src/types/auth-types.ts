@@ -5,6 +5,7 @@ export interface User {
    mfaEnabled?: boolean;
    totpSecret?: string;
    recoveryCodes?: string[];
+   emailOtpEnabled?: boolean;
 }
 
 export interface AuthPayload {
@@ -23,6 +24,15 @@ export interface ServiceResult {
    csrfToken?: string;
    refreshToken?: string;
    mfaPendingToken?: string;
+   mfaType?:string;
+}
+
+export interface EmailOtp{
+   email: string;
+   codeHash: string;
+   expiresAt: string;
+   used: boolean;
+   attempts: number;
 }
 
 export interface SessionInfo {
@@ -54,5 +64,5 @@ export function isAuthPayload(value: unknown): value is AuthPayload {
 export function isMfaCodePayload(value: unknown): value is MfaCodePayload {
    if (typeof value !== "object" || value === null) return false;
    const body = value as Record<string, unknown>;
-   return typeof body.code === "string" && body.code.trim().length > 0;
+   return typeof body.code === "string" && body.code.trim().length > 0 && body.code.length <= 12;
 }

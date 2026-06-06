@@ -4,6 +4,7 @@ import { hashPassword, verifyPassword, validatePassword } from "./password-servi
 import { ServiceResult } from "../types/auth-types";
 import { createMfaPendingToken, createToken } from "../jwt/jwt-service";
 import { createRefreshToken } from "./refresh-token-service";
+import { generateAndSendEmailOtp } from "./email-otp-service";
 
 export async function signUpUser(email: string, password: string): Promise<ServiceResult> {
    try {
@@ -70,12 +71,25 @@ export async function loginUser(email: string, password: string): Promise<Servic
          };
       }
 
+      if(user.emailOtpEnabled){
+         await generateAndSendEmailOtp(normalizedEmail);
+         const mfaPendingToken = createMfaPendingToken(normalizedEmail);
+         return {
+            statusCode: 202,
+            statusMsg: "MFA required",
+            mfaPendingToken,
+            mfaType:"email-otp"
+            
+         }
+      }
+
       if(user.mfaEnabled){
          const mfaPendingToken = createMfaPendingToken(normalizedEmail);
          return{
             statusCode: 202,
             statusMsg: "MFA required",
             mfaPendingToken,
+            mfaType:"totp"
          }
       }
 

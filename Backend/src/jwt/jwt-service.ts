@@ -1,7 +1,7 @@
 import crypto from "crypto";
 
 const SECRET_KEY = crypto.randomBytes(64).toString("hex");
-const TokenDurationSeconds = 300;
+const TokenDurationSeconds = 1800;
 const MFA_PENDING_DURARTION_SECONDS = 300;
 
 interface JwtPayload {

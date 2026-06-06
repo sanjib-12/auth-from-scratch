@@ -1,6 +1,6 @@
 import { IncomingMessage, ServerResponse } from "http";
 import { parseCookies } from "../middleware/cookie-parser";
-import { compareCsrfToken } from "../utils/csrf-token-verification";
+import { timingSafeEqual } from "../utils/csrf-token-verification";
 import { SessionInfo } from "../types/auth-types";
 import { verifyToken } from "./jwt-service";
 
@@ -29,7 +29,7 @@ export function requireAuth(req: IncomingMessage, res: ServerResponse): SessionI
       return null;
    }
 
-   const isTokenValid = compareCsrfToken(payload.csrf, tokenFromHeader);
+   const isTokenValid = timingSafeEqual(payload.csrf, tokenFromHeader);
    if (!isTokenValid) {
       res.writeHead(401);
       res.end("Unauthorized");

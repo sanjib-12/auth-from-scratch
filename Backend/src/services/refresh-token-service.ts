@@ -85,11 +85,11 @@ export async function rotateRefreshToken(raw: string): Promise<{ newtoken: strin
    return { newtoken: newRaw, email: entry.email };
 }
 
-export async function revokeRefreshTokenFamily(raw: string): Promise<void>{
+export async function revokeRefreshTokenFamily(raw: string): Promise<void> {
    const hash = hashToken(raw);
-   const tokens = await readToken();
+   const tokens = purgeExpired(await readToken());
    const entry = tokens.find((t) => t.tokenHash === hash);
-   if(!entry) return;
+   if (!entry) return;
 
    const remaining = tokens.filter((t) => t.familyId !== entry.familyId);
    await writeToken(remaining);

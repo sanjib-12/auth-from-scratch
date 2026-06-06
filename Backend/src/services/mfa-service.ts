@@ -25,7 +25,7 @@ export async function setupMfa(email: string): Promise<{ secret: string; otpauth
    const user = users.find((u) => u.email === email);
    if (!user) return null;
 
-   if (user.mfaEnabled) return null;
+   if (user.mfaEnabled || user.emailOtpEnabled) return null;
 
    const secret = generateTotpSecret();
    user.totpSecret = secret;
