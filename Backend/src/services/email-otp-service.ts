@@ -27,23 +27,6 @@ export async function enableEmailOtp(email: string): Promise<boolean> {
    return true;
 }
 
-// export async function generateAndSendEmailOtp(email: string): Promise<void> {
-//    const otps = await readEmailOtps();
-
-//    const cleaned = otps.filter((o) => o.email !== email);
-
-//    const code = String(crypto.randomInt(100000, 1000000));
-
-//    cleaned.push({
-//       email,
-//       codeHash: hashCode(code),
-//       expiresAt: new Date(Date.now() + OTP_TTL_MS).toISOString(),
-//       used: false,
-//    });
-
-//    await writeEmailOtps(cleaned);
-//    await sendOtpEmail(email, code);
-// }
 
 export async function generateAndSendEmailOtp(email: string): Promise<{ rateLimited: boolean }> {
    const otps = await readEmailOtps();
@@ -71,17 +54,6 @@ export async function generateAndSendEmailOtp(email: string): Promise<{ rateLimi
    await sendOtpEmail(email, code);
    return { rateLimited: false };
 }
-
-// export async function verifyEmailOtp(email: string, code: string): Promise<boolean> {
-//    const otps = await readEmailOtps();
-
-//    const index = otps.findIndex((o) => o.email === email && !o.used && new Date(o.expiresAt) > new Date() && o.codeHash === hashCode(code));
-//    if (index === -1) return false;
-//    otps[index].used = true;
-//    const pruned = otps.filter((o) => !o.used && new Date(o.expiresAt) > new Date());
-//    await writeEmailOtps(pruned);
-//    return true;
-// }
 
 export async function verifyEmailOtp(email: string, code: string): Promise<boolean> {
    const otps = await readEmailOtps();

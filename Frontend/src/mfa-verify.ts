@@ -38,12 +38,15 @@ form.addEventListener("submit", async (event) => {
 resendBtn.addEventListener("click", async()=>{
    resendBtn.disabled = true;
    const response = await postAuthJson("/mfa/email/request");
+   console.log(response)
    if(response.status === 200){
       const res = JSON.parse(response.message);
       messageBox.textContent = res.message;
       resendBtn.disabled = false;
    }else{
-      resendBtn.disabled = true;
-      messageBox.textContent = "Try Again!!";
+      resendBtn.disabled = false;
+      messageBox.textContent = "Wait for a few moment and try again.";
    }
 })
+
+loadMfaVerify()
