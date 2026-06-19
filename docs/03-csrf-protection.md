@@ -195,7 +195,7 @@ export function requireAuth(req: IncomingMessage, res: ServerResponse): SessionI
    if (!session) return null;
 
    // Step 3: Does the token match what's stored in the session?
-   const isTokenValid = compareCsrfToken(session.sessionId, tokenFromHeader);
+   const isTokenValid = timingSafeEqual(session.sessionId, tokenFromHeader);
    if (!isTokenValid) {
       res.writeHead(401);
       res.end("Unauthorized");
@@ -212,7 +212,7 @@ Three checks, in order: header exists → session is valid → token matches. Fa
 
 ```typescript
 // csrf-token-verification.ts
-export function compareCsrfToken(sessionId: string, tokenFromHeader: string): boolean {
+export function timingSafeEqual(sessionId: string, tokenFromHeader: string): boolean {
    const storedCsrfToken = getCsrfToken(sessionId);
    if (!storedCsrfToken) return false;
 

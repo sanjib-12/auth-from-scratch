@@ -359,7 +359,7 @@ export function requireAuth(req: IncomingMessage, res: ServerResponse): SessionI
    if (!payload) { /* 401 */ }
 
    // 4. Does the CSRF token in the JWT match the one in the header?
-   const isTokenValid = compareCsrfToken(payload.csrf, tokenFromHeader);
+   const isTokenValid = timingSafeEqual(payload.csrf, tokenFromHeader);
    if (!isTokenValid) { /* 401 */ }
 
    return { email: payload.sub };

@@ -11,7 +11,7 @@ A hands-on project to learn authentication concepts by building them from scratc
 | 3     | [CSRF Protection](docs/03-csrf-protection.md) | ✅ Done     |
 | 4     | [JWT](docs/04-jwt.md)                        | ✅ Done     |
 | 5     | [Refresh Tokens](docs/05-refresh-token.md)   | ✅ Done     |
-| 6     | MFA                                          | ⬜ Upcoming |
+| 6     | [MFA](docs/06-mfa.md)                        | ✅ Done     |
 | 7     | OAuth                                        | ⬜ Upcoming |
 | 8     | WebAuthn                                     | ⬜ Upcoming |
 
@@ -45,15 +45,19 @@ auth/
 │   │   ├── routers/auth-route.ts              # Signup/login/logout routing
 │   │   ├── routers/profile-route.ts           # Protected profile endpoint
 │   │   ├── routers/refresh-route.ts           # Refresh token rotation endpoint
+│   │   ├── routers/mfa-route.ts               # MFA setup/verify/disable endpoints
 │   │   ├── services/auth-service.ts           # Signup/login logic + JWT + refresh issuance
 │   │   ├── services/password-service.ts       # Hashing + validation
 │   │   ├── services/refresh-token-service.ts  # Refresh token creation, rotation, revocation
+│   │   ├── services/mfa-service.ts            # TOTP MFA lifecycle + recovery codes
+│   │   ├── services/totp-service.ts           # RFC 6238 TOTP from scratch (Base32, HMAC-SHA1)
+│   │   ├── services/email-otp-service.ts      # Email OTP generation, delivery, verification
 │   │   ├── jwt/jwt-service.ts                 # JWT creation, verification (HMAC-SHA256)
 │   │   ├── jwt/session-guard.ts               # Auth guard (JWT + CSRF validation)
 │   │   ├── middleware/body-parser.ts          # JSON body parser (with size limit)
 │   │   ├── middleware/cookie-parser.ts        # HTTP cookie parser
 │   │   ├── middleware/require-json.ts         # Content-Type enforcement
-│   │   ├── utils/cookie.ts                    # Cookie builder/clearer (JWT + CSRF + refresh)
+│   │   ├── utils/cookie.ts                    # Cookie builder/clearer (JWT + CSRF + refresh + mfa_pending)
 │   │   ├── utils/csrf-token-verification.ts   # Timing-safe CSRF token comparison
 │   │   ├── utils/read-write.ts                # File-based user storage
 │   │   └── types/auth-types.ts                # Backend interfaces + type guards
@@ -67,7 +71,8 @@ auth/
     ├── 02-session.md          # Phase 2 — Sessions
     ├── 03-csrf-protection.md  # Phase 3 — CSRF Protection
     ├── 04-jwt.md              # Phase 4 — JSON Web Tokens
-    └── 05-refresh-token.md    # Phase 5 — Refresh Tokens
+    ├── 05-refresh-token.md    # Phase 5 — Refresh Tokens
+    └── 06-mfa.md              # Phase 6 — Multi-Factor Authentication
 ```
 
 ## Getting Started
@@ -114,11 +119,20 @@ Then open `Frontend/public/login.html` or `signup.html` in a browser.
 
 | Method | Path       | Description                        | Auth Required |
 | ------ | ---------- | ---------------------------------- | ------------- |
-| `POST` | `/signup`  | Create a new account               | No            |
-| `POST` | `/login`   | Authenticate with email + password | No            |
-| `GET`  | `/profile` | Get authenticated user profile     | JWT + CSRF    |
-| `POST` | `/logout`  | End session and clear cookies      | JWT + CSRF    |
-| `POST` | `/refresh` | Rotate refresh token + issue new JWT | Refresh cookie |
+| `POST` | `/signup`                | Create a new account                       | No              |
+| `POST` | `/login`                 | Authenticate with email + password         | No              |
+| `GET`  | `/profile`               | Get authenticated user profile             | JWT + CSRF      |
+| `POST` | `/logout`                | End session and clear cookies              | JWT + CSRF      |
+| `POST` | `/refresh`               | Rotate refresh token + issue new JWT       | Refresh cookie  |
+| `POST` | `/mfa/setup`             | Generate TOTP secret + QR code             | JWT + CSRF      |
+| `POST` | `/mfa/verify-setup`      | Confirm TOTP code and activate MFA         | JWT + CSRF      |
+| `POST` | `/mfa/verify`            | Submit TOTP code or recovery code at login | mfa_pending     |
+| `POST` | `/mfa/disable`           | Disable TOTP MFA                           | JWT + CSRF      |
+| `POST` | `/mfa/email/setup`       | Generate and email an OTP to enable Email OTP | JWT + CSRF   |
+| `POST` | `/mfa/email/verify-setup`| Verify OTP and activate Email OTP          | JWT + CSRF      |
+| `POST` | `/mfa/email/request`     | Resend email OTP code                      | mfa_pending     |
+| `POST` | `/mfa/email/verify`      | Submit email OTP code at login             | mfa_pending     |
+| `POST` | `/mfa/email/disable`     | Disable Email OTP                          | JWT + CSRF      |
 
 `/signup` and `/login` expect `Content-Type: application/json` with body:
 
@@ -135,3 +149,4 @@ Each phase has a detailed doc explaining **what** was built and **why** each dec
 - [Phase 3 — CSRF Protection](docs/03-csrf-protection.md)
 - [Phase 4 — JSON Web Tokens](docs/04-jwt.md)
 - [Phase 5 — Refresh Tokens](docs/05-refresh-token.md)
+- [Phase 6 — Multi-Factor Authentication (MFA)](docs/06-mfa.md)
