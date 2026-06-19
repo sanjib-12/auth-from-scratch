@@ -9,7 +9,5 @@ agent.md
 config.toml
 CLAUDE.md
 
-Backend/db/
-
 .graphify_python
 graphify-out
