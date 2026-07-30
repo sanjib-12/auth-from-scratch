@@ -13,6 +13,8 @@ import {
    handleEmailOtpDisable,
 } from "./routers/email-otp-route";
 
+import { handleGoogleStart, handleGoogleCallback } from './routers/oauth-route';
+
 const PORT = 5000;
 
 const server = http.createServer((req: IncomingMessage, res: ServerResponse) => {
@@ -80,6 +82,12 @@ const server = http.createServer((req: IncomingMessage, res: ServerResponse) => 
    } else if (pathname === "/mfa/email/disable") {
       if (rejectIfNot("POST", req, res)) return;
       handleEmailOtpDisable(req, res);
+   } else if (pathname === "/oauth/google/start"){
+      if(rejectIfNot("GET", req, res)) return;
+      handleGoogleStart(req, res)
+   } else if (pathname === "/oauth/google/callback"){
+      if (rejectIfNot("GET", req, res)) return;
+      handleGoogleCallback(req, res);
    } else {
       res.writeHead(404);
       res.end("Not Found");

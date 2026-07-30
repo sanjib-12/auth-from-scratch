@@ -1,11 +1,18 @@
+export interface OAuthProvider{
+   provider: "google";
+   providerId: string;
+   linkedAt: string;
+}
+
 export interface User {
    id: string;
    email: string;
-   password: string;
+   password?: string;
    mfaEnabled?: boolean;
    totpSecret?: string;
    recoveryCodes?: string[];
    emailOtpEnabled?: boolean;
+   oauthProviders?: OAuthProvider[];
 }
 
 export interface AuthPayload {

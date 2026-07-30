@@ -62,6 +62,13 @@ export async function loginUser(email: string, password: string): Promise<Servic
          };
       }
 
+      if(!user.password){
+         return{
+            statusCode: 400,
+            statusMsg: "This account uses Google sign-in. Please click 'Login with Google'.",
+         }
+      }
+
       const valid = await verifyPassword(password, user.password);
 
       if (!valid) {
