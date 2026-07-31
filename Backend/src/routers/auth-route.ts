@@ -60,7 +60,7 @@ export async function handleLogin(req: IncomingMessage, res: ServerResponse) {
          res.setHeader("Set-Cookie", [jwtCookie, csrfCookie, refreshCookie]);
       }
 
-      res.setHeader("Contente-Type", "application/json");
+      res.setHeader("Content-Type", "application/json");
       res.writeHead(result.statusCode);
       res.end(JSON.stringify({message:result.statusMsg, mfaType:result.mfaType}));
    } catch (error) {
