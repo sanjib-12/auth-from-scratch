@@ -12,7 +12,7 @@ A hands-on project to learn authentication concepts by building them from scratc
 | 4     | [JWT](docs/04-jwt.md)                        | ✅ Done     |
 | 5     | [Refresh Tokens](docs/05-refresh-token.md)   | ✅ Done     |
 | 6     | [MFA](docs/06-mfa.md)                        | ✅ Done     |
-| 7     | OAuth                                        | ⬜ Upcoming |
+| 7     | [OAuth](docs/07-oauth.md)                    | ✅ Done     |
 | 8     | WebAuthn                                     | ⬜ Upcoming |
 
 ## Tech Stack
@@ -33,7 +33,7 @@ auth/
 │   │   └── dashboard.html
 │   ├── src/
 │   │   ├── api.ts            # Fetch wrapper + CSRF handling + silent refresh
-│   │   ├── login.ts          # Login form handler
+│   │   ├── login.ts          # Login form handler + OAuth error banner
 │   │   ├── signup.ts         # Signup form handler
 │   │   ├── dashboard.ts      # Dashboard: profile loading + logout
 │   │   └── types/user.ts     # Frontend interfaces
@@ -46,12 +46,14 @@ auth/
 │   │   ├── routers/profile-route.ts           # Protected profile endpoint
 │   │   ├── routers/refresh-route.ts           # Refresh token rotation endpoint
 │   │   ├── routers/mfa-route.ts               # MFA setup/verify/disable endpoints
+│   │   ├── routers/oauth-route.ts             # Google OAuth start/callback endpoints
 │   │   ├── services/auth-service.ts           # Signup/login logic + JWT + refresh issuance
 │   │   ├── services/password-service.ts       # Hashing + validation
 │   │   ├── services/refresh-token-service.ts  # Refresh token creation, rotation, revocation
 │   │   ├── services/mfa-service.ts            # TOTP MFA lifecycle + recovery codes
 │   │   ├── services/totp-service.ts           # RFC 6238 TOTP from scratch (Base32, HMAC-SHA1)
 │   │   ├── services/email-otp-service.ts      # Email OTP generation, delivery, verification
+│   │   ├── services/oauth-service.ts          # Google auth URL, PKCE, token exchange, account linking
 │   │   ├── jwt/jwt-service.ts                 # JWT creation, verification (HMAC-SHA256)
 │   │   ├── jwt/session-guard.ts               # Auth guard (JWT + CSRF validation)
 │   │   ├── middleware/body-parser.ts          # JSON body parser (with size limit)
@@ -60,6 +62,7 @@ auth/
 │   │   ├── utils/cookie.ts                    # Cookie builder/clearer (JWT + CSRF + refresh + mfa_pending)
 │   │   ├── utils/csrf-token-verification.ts   # Timing-safe CSRF token comparison
 │   │   ├── utils/read-write.ts                # File-based user storage
+│   │   ├── utils/oauth-state.ts               # OAuth `state` + PKCE verifier store (TTL, single-use)
 │   │   └── types/auth-types.ts                # Backend interfaces + type guards
 │   ├── db/
 │   │   ├── users.json                         # User data store
@@ -72,7 +75,8 @@ auth/
     ├── 03-csrf-protection.md  # Phase 3 — CSRF Protection
     ├── 04-jwt.md              # Phase 4 — JSON Web Tokens
     ├── 05-refresh-token.md    # Phase 5 — Refresh Tokens
-    └── 06-mfa.md              # Phase 6 — Multi-Factor Authentication
+    ├── 06-mfa.md              # Phase 6 — Multi-Factor Authentication
+    └── 07-oauth.md            # Phase 7 — OAuth 2.0 Login (Google)
 ```
 
 ## Getting Started
@@ -133,12 +137,16 @@ Then open `Frontend/public/login.html` or `signup.html` in a browser.
 | `POST` | `/mfa/email/request`     | Resend email OTP code                      | mfa_pending     |
 | `POST` | `/mfa/email/verify`      | Submit email OTP code at login             | mfa_pending     |
 | `POST` | `/mfa/email/disable`     | Disable Email OTP                          | JWT + CSRF      |
+| `GET`  | `/oauth/google/start`    | Redirect to Google's consent screen        | No              |
+| `GET`  | `/oauth/google/callback` | Google redirects here with the auth code; issues a session (or `mfa_pending`) | No |
 
 `/signup` and `/login` expect `Content-Type: application/json` with body:
 
 ```json
 { "email": "user@example.com", "password": "your-password" }
 ```
+
+`GET /oauth/google/start` is a plain browser link (not a fetch call) — it redirects the user to Google, and Google eventually redirects back to `/oauth/google/callback`, which itself redirects into `login.html` (on error) or `dashboard.html` / `mfa-verify.html` (on success).
 
 ## Documentation
 
@@ -150,3 +158,4 @@ Each phase has a detailed doc explaining **what** was built and **why** each dec
 - [Phase 4 — JSON Web Tokens](docs/04-jwt.md)
 - [Phase 5 — Refresh Tokens](docs/05-refresh-token.md)
 - [Phase 6 — Multi-Factor Authentication (MFA)](docs/06-mfa.md)
+- [Phase 7 — OAuth 2.0 Login (Google)](docs/07-oauth.md)
