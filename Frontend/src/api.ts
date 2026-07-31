@@ -134,9 +134,9 @@ export async function postAuthJson<T>(endpoint: string, data?: object): Promise<
    }
 }
 
-export async function postMfaVerify(code: string): Promise<ApiResponse> {
-   const mfaType = sessionStorage.getItem("mfaType");
-   const endpoint = mfaType === "email-otp" ? "/mfa/email/verify" : "/mfa/verify";
+export async function postMfaVerify(code: string, mfa: string): Promise<ApiResponse> {
+   //const mfaType = sessionStorage.getItem("mfaType");
+   const endpoint = mfa === "email-otp" ? "/mfa/email/verify" : "/mfa/verify";
    try {
       const response = await fetch(`${BASE_URL}${endpoint}`, {
          method: "POST",
